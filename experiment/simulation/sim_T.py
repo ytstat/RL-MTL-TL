@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-
+Simulation with different number of tasks T in Section 5.1.3
 """
 
 import numpy as np
@@ -10,10 +10,13 @@ import torch
 import csv
 from joblib import Parallel, delayed
 
-path1 = "/moto/home/yt2661/work/RL-MTL/code/"
-path2 = "/moto/home/yt2661/work/RL-MTL/code/benchmarks/ARMUL/"
-path3 = "/moto/home/yt2661/work/RL-MTL/code/benchmarks/AdaptRep/"
-path4 = "/moto/home/yt2661/work/RL-MTL/code/benchmarks/group-lasso/"
+# replace the root path of the folder with your own
+root_path = "/Users/yetian/Library/CloudStorage/Dropbox/Columbia/Research/Project/Representation-MTL/Code/public version/"
+
+path1 = root_path
+path2 = root_path + "benchmarks/ARMUL"
+path3 = root_path + "benchmarks/AdaptRep"
+path4 = root_path + "benchmarks/GLasso"
 sys.path.append(os.path.join(os.path.dirname(path1)))
 sys.path.append(os.path.join(os.path.dirname(path2)))
 sys.path.append(os.path.join(os.path.dirname(path3)))
@@ -25,6 +28,10 @@ from funcs import all_distance
 from ARMUL import ARMUL_blackbox
 from AdaptRep import AdaptRep
 from generate_data import generate_data
+
+os.environ["R_HOME"] = "/Library/Frameworks/R.framework/Resources"
+from grouplasso_supp import GLasso
+
 
 
 # set the random seed
@@ -60,8 +67,8 @@ else:
 
 def run_sim(T, setting_no):
     print('Running simulations with different T values... setting ' + str(setting_no) + '... T = ' + str(T), flush=True)
-    est_error_S = np.zeros(8)
-    est_error_Sc = np.zeros(8)
+    est_error_S = np.zeros(9)
+    est_error_Sc = np.zeros(9)
     
     if setting_no == 1:
         n = 100; p = 50; r = 5; epsilon = 0; h = 0
@@ -101,6 +108,8 @@ def run_sim(T, setting_no):
     # spectral
     beta_hat_spectral = spectral(data = train_data, r = r, C2 = 0.5, info = False, adaptive=False, q = epsilon)
     
+    # GLasso
+    beta_hat_GLasso = GLasso(train_data)
     
     ## write the estimation error
     est_error_S[0] = max(all_distance(beta_hat_single_task, beta)[S])
@@ -111,6 +120,7 @@ def run_sim(T, setting_no):
     est_error_S[5] = max(all_distance(beta_hat_AdaptRep, beta)[S])
     est_error_S[6] = max(all_distance(beta_hat_pERM['step2'], beta)[S])
     est_error_S[7] = max(all_distance(beta_hat_spectral['step2'], beta)[S])
+    est_error_S[8] = max(all_distance(beta_hat_GLasso, beta)[S])
     
     if Sc.size > 0:
         est_error_Sc[0] = max(all_distance(beta_hat_single_task, beta)[Sc])
@@ -121,7 +131,7 @@ def run_sim(T, setting_no):
         est_error_Sc[5] = max(all_distance(beta_hat_AdaptRep, beta)[Sc])
         est_error_Sc[6] = max(all_distance(beta_hat_pERM['step2'], beta)[Sc])
         est_error_Sc[7] = max(all_distance(beta_hat_spectral['step2'], beta)[Sc])
-    
+        est_error_Sc[8] = max(all_distance(beta_hat_GLasso, beta)[Sc])
     
     return(np.concatenate([est_error_S, est_error_Sc]))
     

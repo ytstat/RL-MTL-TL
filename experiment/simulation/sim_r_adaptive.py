@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-
+Adaptivity to the intrinsic dimension r in Section 5.1.5
 """
 
 import numpy as np
@@ -10,10 +10,13 @@ import torch
 import csv
 from joblib import Parallel, delayed
 
-path1 = "/moto/home/yt2661/work/RL-MTL/code"
-path2 = "/moto/home/yt2661/work/RL-MTL/code/benchmarks/ARMUL/"
-path3 = "/moto/home/yt2661/work/RL-MTL/code/benchmarks/AdaptRep/"
-path4 = "/moto/home/yt2661/work/RL-MTL/code/benchmarks/group-lasso/"
+# replace the root path of the folder with your own
+root_path = "/Users/yetian/Library/CloudStorage/Dropbox/Columbia/Research/Project/Representation-MTL/Code/public version/"
+
+path1 = root_path
+path2 = root_path + "benchmarks/ARMUL"
+path3 = root_path + "benchmarks/AdaptRep"
+path4 = root_path + "benchmarks/GLasso"
 sys.path.append(os.path.join(os.path.dirname(path1)))
 sys.path.append(os.path.join(os.path.dirname(path2)))
 sys.path.append(os.path.join(os.path.dirname(path3)))
@@ -74,8 +77,7 @@ def run_sim(h, setting_no):
     train_data = output_dict['data']
     beta = output_dict['beta']
     S = output_dict['S']
-    
-    # column_norm(beta)
+
     
     ## run different methods
     # estimate r

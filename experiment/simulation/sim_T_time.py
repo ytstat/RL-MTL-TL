@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-
+Computational time with different number of tasks T in Section 5.1.3
 """
 
 import numpy as np
@@ -11,10 +11,13 @@ import csv
 from joblib import Parallel, delayed
 import time
 
-path1 = "/moto/home/yt2661/work/RL-MTL/code/"
-path2 = "/moto/home/yt2661/work/RL-MTL/code/benchmarks/ARMUL/"
-path3 = "/moto/home/yt2661/work/RL-MTL/code/benchmarks/AdaptRep/"
-path4 = "/moto/home/yt2661/work/RL-MTL/code/benchmarks/group-lasso/"
+# replace the root path of the folder with your own
+root_path = "/Users/yetian/Library/CloudStorage/Dropbox/Columbia/Research/Project/Representation-MTL/Code/public version/"
+
+path1 = root_path
+path2 = root_path + "benchmarks/ARMUL"
+path3 = root_path + "benchmarks/AdaptRep"
+path4 = root_path + "benchmarks/GLasso"
 sys.path.append(os.path.join(os.path.dirname(path1)))
 sys.path.append(os.path.join(os.path.dirname(path2)))
 sys.path.append(os.path.join(os.path.dirname(path3)))
@@ -26,6 +29,9 @@ from funcs import all_distance
 from ARMUL import ARMUL_blackbox
 from AdaptRep import AdaptRep
 from generate_data import generate_data
+
+os.environ["R_HOME"] = "/Library/Frameworks/R.framework/Resources"
+from grouplasso_supp import GLasso
 
 
 # set the random seed
@@ -61,7 +67,7 @@ else:
 
 def run_sim(T):
     print('Running simulations with different T values... T = ' + str(T), flush=True)
-    time_array = np.zeros(8)
+    time_array = np.zeros(9)
     
     n = 100; p = 50; r = 5; epsilon = 0; h = 0
 
@@ -119,6 +125,12 @@ def run_sim(T):
     beta_hat_spectral = spectral(data = train_data, r = r, C2 = 0.5, info = False, adaptive=False, q = epsilon)
     t2 = time.time()
     time_array[7] = t2 - t1
+    
+    ## GLasso
+    t1 = time.time()
+    beta_hat_GLasso = GLasso(train_data)
+    t2 = time.time()
+    time_array[8] = t2 - t1
     
     return(time_array)
     

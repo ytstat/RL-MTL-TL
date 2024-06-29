@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-
+Relationship between task performance and signal strength in Section 5.1.4
 """
 
 import numpy as np
@@ -9,12 +9,15 @@ import sys, os
 import torch
 import csv
 from joblib import Parallel, delayed
-from scipy.linalg import sqrtm
+from spicy.linalg import sqrtm
 
-path1 = "/moto/home/yt2661/work/RL-MTL/code/"
-path2 = "/moto/home/yt2661/work/RL-MTL/code/benchmarks/ARMUL/"
-path3 = "/moto/home/yt2661/work/RL-MTL/code/benchmarks/AdaptRep/"
-path4 = "/moto/home/yt2661/work/RL-MTL/code/benchmarks/group-lasso/"
+# replace the root path of the folder with your own
+root_path = "/Users/yetian/Library/CloudStorage/Dropbox/Columbia/Research/Project/Representation-MTL/Code/public version/"
+
+path1 = root_path
+path2 = root_path + "benchmarks/ARMUL"
+path3 = root_path + "benchmarks/AdaptRep"
+path4 = root_path + "benchmarks/GLasso"
 sys.path.append(os.path.join(os.path.dirname(path1)))
 sys.path.append(os.path.join(os.path.dirname(path2)))
 sys.path.append(os.path.join(os.path.dirname(path3)))
@@ -25,7 +28,10 @@ from mtl_func_torch import pERM, ERM, spectral, MoM, single_task_LR, pooled_LR
 from funcs import all_distance
 from ARMUL import ARMUL_blackbox
 from AdaptRep import AdaptRep
+from generate_data import generate_data
 
+os.environ["R_HOME"] = "/Library/Frameworks/R.framework/Resources"
+from grouplasso_supp import GLasso
 
 
 # set the random seed
@@ -80,7 +86,7 @@ else:
 
 
 def run_sim():
-    est_error_S = np.zeros((8, T))
+    est_error_S = np.zeros((9, T))
 
     A = np.zeros((T, p, r))
     beta = np.zeros((p, T))
@@ -137,6 +143,8 @@ def run_sim():
     # spectral
     beta_hat_spectral = spectral(data = train_data, r = r, C2 = 0.5, info = False, adaptive=False)
     
+    # GLasso
+    beta_hat_GLasso = GLasso(train_data)
     
     ## write the estimation error
     est_error_S[0, :] = all_distance(beta_hat_single_task, beta)[S]
@@ -147,6 +155,7 @@ def run_sim():
     est_error_S[5, :] = all_distance(beta_hat_AdaptRep, beta)[S]
     est_error_S[6, :] = all_distance(beta_hat_pERM['step2'], beta)[S]
     est_error_S[7, :] = all_distance(beta_hat_spectral['step2'], beta)[S]
+    est_error_S[8, :] = all_distance(beta_hat_GLasso, beta)[S]
     
     return(est_error_S)
     
