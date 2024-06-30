@@ -2,7 +2,7 @@
 #### Implementation of different MTL methods
 - ARMUL (Duan and Wang, 2023) was implemented by the code in their paper. We included their code in the "benchmarks" folder.
 - AdaptRep (Chua et al. 2021) was implemented by the code in their paper. We included their code in the "benchmarks" folder.
-- Group Lasso (Yuan and Lin, 2006; Lounici et al. 2009, 2011) was implemented by the R package `RMTL` and we used the Python package `rpy2` to call the functions in R.
+- Group Lasso (Yuan and Lin, 2006; Lounici et al. 2009, 2011) was implemented by the R package `RMTL` and we used the Python package `rpy2` to call the functions in R. Please make sure `RMTL` and `rpy2` have been correctly installed.
 - All the other methods, including the penalized ERM method (Algorithm 1 in our paper), the spectral method (Algorithm 2 in our paper), ERM (Du et al. 2021; Tripuraneni et al. 2021), Methods-of-moments (Tripuraneni et al. 2021), pooled regression (Crammer et al. 2008; Ben-David et al. 2010), and single-task regression, were implemented by the code in `mtl_func_torch.py`.
 - We used `PyTorch` to implement ERM, the penalized ERM, and the spectral method. Please make sure `PyTorch` is correctly installed before running the code.
 
