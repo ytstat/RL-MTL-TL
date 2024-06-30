@@ -17,6 +17,7 @@
 - Section 5.1.5: `sim_r_adaptive.py`
 
 #### Real data: 
+- Download the dataset from UCI Machine Learning Repository: [Link](https://archive.ics.uci.edu/dataset/240/human+activity+recognition+using+smartphones)
 - Data pre-processing: `data_prep.py`, running on the local computer, producing `har_standardized.pkl`
 - Prediction: `har.py`, run with random seed 0-99
 
