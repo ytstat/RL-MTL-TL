@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""
+Useful functions
+"""
+
 from numpy.linalg import norm
 import numpy as np
 

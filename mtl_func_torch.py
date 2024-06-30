@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sun Jun  2 23:20:43 2024
-
-@author: yetian
+Implementation of different MTL methods
 """
 
 import numpy as np
@@ -18,6 +16,7 @@ def column_norm(A):
     return(norm_A)
 
 
+## penalized ERM (Algorithm 1)
 def pERM(data, r = 3, T1 = 1, T2 = 1, R = None, r_bar = None, lr = 0.01, max_iter = 2000, C1 = 1, C2 = 1, 
             delta = 0.05, adaptive = False, info = False, tol = 1e-6, link = 'linear'):
     if info:
@@ -197,8 +196,9 @@ def pERM(data, r = 3, T1 = 1, T2 = 1, R = None, r_bar = None, lr = 0.01, max_ite
         print("pERM stops running...", flush = True)
     
     return({"step1": beta_hat_step1, "step2": beta_hat_step2})
-    
    
+ 
+## ERM (the same representation across tasks)
 def ERM(data, r, eta = 0.05, delta = 0.05, max_iter = 2000, lr = 0.01, info = False, tol = 1e-6, link = 'linear'):
     if info:
         print("ERM starts running...", flush = True)
@@ -286,6 +286,7 @@ def ERM(data, r, eta = 0.05, delta = 0.05, max_iter = 2000, lr = 0.01, info = Fa
         
     return(beta_hat)
 
+## Single-task regression
 def single_task_LR(data, link = 'linear'):
     T = len(data)
     p = data[0][0].shape[1]
@@ -298,6 +299,8 @@ def single_task_LR(data, link = 'linear'):
             beta_hat[:, t] = LogisticRegression(fit_intercept = False).fit(data[t][0], data[t][1]).coef_
     return(beta_hat)
 
+
+## Pooled regression
 def pooled_LR(data, link = 'linear'):
     T = len(data)
     p = data[0][0].shape[1]
@@ -317,6 +320,8 @@ def pooled_LR(data, link = 'linear'):
         beta_hat[:, t] = beta_fit
     return(beta_hat)
 
+
+## Estimation of r (Algorithm 3) 
 def select_r(data, T1 = 0.5, T2 = 0.25, R = None, r_bar = None, q = 0.05, epsilon_bar = 0.05, link = 'linear'):
     n = np.array([x.shape[0] for (x,y) in data])
     T = len(data)
@@ -326,18 +331,12 @@ def select_r(data, T1 = 0.5, T2 = 0.25, R = None, r_bar = None, q = 0.05, epsilo
     if link == 'linear':
         for t in range(T):
             beta_hat_single_task[:, t] = LinearRegression(fit_intercept = False).fit(data[t][0], data[t][1]).coef_
-            # model = LinearRegression(fit_intercept = False)
-            # model.fit(data[t][0], data[t][1])
-            # beta_hat_single_task[:, t] = model.coef_
-            # res = data[t][1] - data[t][0]@beta_hat_single_task[:, t]
-            # var_est[t] = np.mean(np.sum(res**2))
     elif link == 'logistic':
         for t in range(T):
             beta_hat_single_task[:, t] = LogisticRegression(fit_intercept = False).fit(data[t][0], data[t][1]).coef_
 
     norm_each_task = column_norm(beta_hat_single_task)
     if R is None:
-        # R = np.median(norm_each_task)*2
         R = np.quantile(norm_each_task, q)
     
     for t in range(T):
@@ -347,7 +346,6 @@ def select_r(data, T1 = 0.5, T2 = 0.25, R = None, r_bar = None, q = 0.05, epsilo
     # set up threshold
     if r_bar is None:
         r_bar = p
-    # threshold = T1*np.sqrt((p+np.log(T))/np.max(n)) + T2*R*(r_bar**(-3/4))
     threshold = T1*np.sqrt((p+np.log(T))/np.max(n)) + T2*R*np.sqrt(epsilon_bar)
     sigval = np.linalg.svd(beta_hat_single_task/np.sqrt(T))[1]
     if len(np.where(sigval > threshold)[0]) > 0:
@@ -358,10 +356,8 @@ def select_r(data, T1 = 0.5, T2 = 0.25, R = None, r_bar = None, q = 0.05, epsilo
         print('No r is selected. Too large threshold.')
         return(None)
     
-    # return({'sigval': sigval,
-    #         'threshold': threshold})
-
-
+    
+## Spectral method (Algorithm 2)
 def spectral(data, r, C2 = 1, T1 = 1, T2 = 1, R = None, r_bar = None, lr = 0.01, max_iter = 2000, info = False, adaptive = False, tol = 1e-6, link = 'linear', q = 0):
     if info:
         print("spectral starts running...")
@@ -513,6 +509,8 @@ def spectral(data, r, C2 = 1, T1 = 1, T2 = 1, R = None, r_bar = None, lr = 0.01,
         
     return({"step1": beta_hat_step1, "step2": beta_hat_step2})
 
+
+## Method-of-moments
 def MoM(data, r):
     T = len(data)
     n = np.array([x.shape[0] for (x,y) in data])

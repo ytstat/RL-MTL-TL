@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jun  6 18:31:26 2024
-
-@author: yetian
+Data generation function for simulations
 """
 
 import numpy as np
@@ -11,9 +9,6 @@ from scipy.linalg import sqrtm
 
 
 # --------------------------------------
-## Simulation set-up
-
-
 def generate_data(n = 100, p = 50, r = 5, T = 50, h = 0, epsilon = 0, link = 'linear', H = 2):
     num_outlier = int(np.floor(epsilon*T)) 
     S = np.sort(np.random.choice(range(T), size = T-num_outlier, replace = False))
@@ -38,7 +33,6 @@ def generate_data(n = 100, p = 50, r = 5, T = 50, h = 0, epsilon = 0, link = 'li
     # generate beta outside S
     if num_outlier > 0:
         beta_outlier = np.random.uniform(low = -3, high = 3, size = num_outlier*p).reshape(p, num_outlier)
-        # beta_outlier = np.random.uniform(low = -5, high = 5, size = num_outlier*p).reshape(p, num_outlier)
         beta[:, Sc] = beta_outlier
 
     # data generation
